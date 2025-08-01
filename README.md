@@ -9,7 +9,7 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 
 *Image credit: David Taylor*
 
-### Setup
+## Setup
 
 The folder structure of each individual project should resemble this, adapted to the number of plates present:
 
@@ -122,7 +122,41 @@ write.table(pops, file = "sample_info/pops_all.txt", sep = "\t",
 
 * Move the internal_indexes_plate_n.txt and pops_all.txt files into the **barcodes/** folder
 
-### RUN LINUX SCRIPTS
+## RUN LINUX JOB SCRIPTS
 
+### 🔵 index_refgenome.job
 
+If you have a reference genome, run this script to index it (indexing makes it easier to work with further downstream). Example job submission (change the REFERENCE_INDEX path accordingly to set the directory containing the reference genome):
 
+```
+qsub -v REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1" 0_index_refgenome.job
+```
+
+### 🔵 fastqc.job
+
+This runs a quality check on the data received from the sequencer:
+
+BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **your_RADseq_data_folder/**
+NUM_PLATES = the number of plates you have
+
+```
+qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean/IcePlant.RawData",NUM_PLATES=2 fastqc.job
+```
+
+### 🔵 1_demultiplex.job
+
+This step takes in the internal index information for each sample on each plate (the files you created that are now in **barcodes/**), and searches through the sequence data to find all the fragments that belong to each unique sample. It creates an output folder called **stacksoutput/**, and a folder for each plate. E.g. **stacksoutput/plate_1** and **stacksoutput/plate_2**. Each plate folder will contain a folder (.fq.gz) per sample. Once it has completed demultiplexing, the script creates a new folder called **combined_plates/**, into which it puts all samples from all plates. It then checks for sample folders that are abnormally small, and moves those into a new folder called **removed_zipped/**. The remaining good samples are put into a folder called **ready/**. The barcodes folder is updated to include these ready samples, as the removed ones should no longer be in the sample list. This sample list is saved as **barcodes/bothplates_pops.txt**.		
+The file structure should resemble: **your_RADseq_data_folder/stacksoutput/combined_plates/ready** and **your_RADseq_data_folder/barcodes/bothplates_pops.txt**
+
+### 🔵 subsample.job
+
+If your demultiplexed sample files are very large (500MB - 1GB), consider subsampling them (selecting only a fraction of the fragments) before continuing with Stacks. To subsample, run this job script:
+
+INPUT_DIR = the path to your ready samples that have been demultiplexed
+SAMPLERATE = the proportion of fragments to keep
+
+This uses the reformat.sh function in the bbmap library, where N fragments are randomly selected, while keeping the correct Read1 and Read2 pairs.
+
+```
+qsub INPUT_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Admera/stacksoutput/combined_plates/ready",SAMPLERATE=0.1 1_subsample.job
+```
