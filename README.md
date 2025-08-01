@@ -34,7 +34,7 @@ your_repository/
     │   ├── internal_indexes_plate_2.txt  
     │   └── pops_all.txt
     └──ref_genome/	
-	      ├── ncbi_dataset/ (other applicable folders here, if a reference genome is available)
+	├── ncbi_dataset/ (other applicable folders here, if a reference genome is available)
 ```
 
 On an HPC, create the necessary folders (example below for 2 plates):
