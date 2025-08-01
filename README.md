@@ -11,7 +11,7 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 
 ### Setup
 
-The folder structure of the project should resemble this, adapted to the number of plates present:
+The folder structure of each individual project should resemble this, adapted to the number of plates present:
 
 ```plaintext
 your_repository/
@@ -116,8 +116,13 @@ sample_sheet = read.csv("all_plates.csv")
 pops = create_pop_file(sample_sheet = sample_sheet)
 
 # save as a txt file
-write.table(pops, file = "sample_info/pops.txt", sep = "\t",             
+write.table(pops, file = "sample_info/pops_all.txt", sep = "\t",             
             row.names = FALSE, col.names = FALSE, quote = FALSE, eol = "\n")
 ```
+
+* Move the internal_indexes_plate_n.txt and pops_all.txt files into the **barcodes/** folder
+
+### RUN LINUX SCRIPTS
+
 
 
