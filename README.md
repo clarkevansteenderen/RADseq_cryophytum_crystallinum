@@ -124,6 +124,8 @@ write.table(pops, file = "sample_info/pops_all.txt", sep = "\t",
 
 ## RUN LINUX JOB SCRIPTS
 
+For each job, just modify the #PBS paramaters in the files to match your HPC platform, resource and walltime requirements, and logfile paths.
+
 ### 🔵 index_refgenome.job
 
 If you have a reference genome, run this script to index it (indexing makes it easier to work with further downstream). Example job submission (change the REFERENCE_INDEX path accordingly to set the directory containing the reference genome):
@@ -136,7 +138,7 @@ qsub -v REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/da
 
 This runs a quality check on the data received from the sequencer:
 
-BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**
+BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**		
 NUM_PLATES = the number of plates you have
 
 ```
@@ -154,7 +156,7 @@ Tweak the script to change the Stacks parameters (e.g. enzymes).
 
 If your demultiplexed sample files are very large (500MB - 1GB), consider subsampling them (selecting only a fraction of the fragments) before continuing with Stacks. To subsample, run this job script:
 
-INPUT_DIR = the path to your ready samples that have been demultiplexed
+INPUT_DIR = the path to your ready samples that have been demultiplexed		
 SAMPLERATE = the proportion of fragments to keep
 
 This uses the reformat.sh function in the bbmap library, where N fragments are randomly selected, while keeping the correct Read1 and Read2 pairs.
@@ -208,10 +210,10 @@ echo "Combination complete. Output in: $HOME_DIR/combined_data"
 
 ### 🔵 2_align_and_stacks_denovo.job FOR DENOVO assembly (no reference genome)
 
-This script assembles the demultiplexed samples using Stacks's denovo_map.pl and populations workflows. To run:
+This script assembles the demultiplexed samples using Stacks's **denovo_map.pl** and **populations** workflows. To run:
 
-SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)
-BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
+SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)	
+BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file		
 
 This script creates an output folder called **stacksoutput_denovo/** and **stacksoutput_denovo/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
 
@@ -220,3 +222,19 @@ Check the script to modify Stacks parameters.
 ```
 qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes" 2_align_and_stacks_denovo.job
 ```
+
+### 🔵 2_align_and_stacks_refgenome.job FOR ASSEMBLY USING A REFERENCE GENOME
+
+This script differs from the denovo approach in that it aligns sample reads to a reference genome, sorts them, and then assembles the reads using Stacks' **ref_map.pl** function.
+To run:
+
+SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)		
+BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file		
+REFERENCE_INDEX = the path to the indexed reference genome
+
+This script creates an output folder called **refgenome_alignments/** and **refgenome_alignments/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
+
+```
+qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes",REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1/reference_index" 2_align_and_stacks_refgenome.job
+```
+
