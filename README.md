@@ -7,21 +7,21 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 
 <img src="crystallinum.png" width="500">
 
-*Image credit: David Taylor*
+*Image credit: Centre for Biological Control (CBC)*
 
-## Setup
+## SETUP
 
 The folder structure of each individual project should resemble this, adapted to the number of plates present:
 
 ```plaintext
 RADseq_project/
 └── job_files/
-      	├── 0_index_refgenome.job	
-      	├── 1_subsample.job
-      	├── 2_fastqc.job		
-      	├── 3_demultiplex.job
-      	├── 4_align_and_stacks_denovo.job	
-      	├── 4_align_and_stacks_refgenome.job		
+      	├── index_refgenome.job	
+      	├── subsample.job
+      	├── fastqc.job		
+      	├── 1_demultiplex.job
+      	├── 2_align_and_stacks_denovo.job	
+      	├── 2_align_and_stacks_refgenome.job		
 └── data/  
     ├── plate_1/  
     │   ├── filenameA_R1_001.fastq.gz  
@@ -148,6 +148,8 @@ qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean
 This step takes in the internal index information for each sample on each plate (the files you created that are now in **barcodes/**), and searches through the sequence data to find all the fragments that belong to each unique sample. It creates an output folder called **stacksoutput/**, and a folder for each plate. E.g. **stacksoutput/plate_1** and **stacksoutput/plate_2**. Each plate folder will contain a folder (.fq.gz) per sample. Once it has completed demultiplexing, the script creates a new folder called **combined_plates/**, into which it puts all samples from all plates. It then checks for sample folders that are abnormally small, and moves those into a new folder called **removed_zipped/**. The remaining good samples are put into a folder called **ready/**. The barcodes folder is updated to include these ready samples, as the removed ones should no longer be in the sample list. This sample list is saved as **barcodes/bothplates_pops.txt**.		
 The file structure should resemble: **data/stacksoutput/combined_plates/ready** and **data/barcodes/bothplates_pops.txt**
 
+Tweak the script to change the Stacks parameters (e.g. enzymes).
+
 ### 🔵 subsample.job
 
 If your demultiplexed sample files are very large (500MB - 1GB), consider subsampling them (selecting only a fraction of the fragments) before continuing with Stacks. To subsample, run this job script:
@@ -162,7 +164,7 @@ qsub INPUT_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Admera
 ```
 
 ### ⚠️ Check ⚠️: Are you working with data from more than one project (independent sequence results received from the same provider or different providers at different times)?	
-If so: at this point you need to create a new folder in your project's home directory (e.g. **combined_data/ready**), and copy over the sample files from each **ready/** folder into that. In the example below, we have two independent projects that were demultiplexed. Each project path (ready/ or ready/subsampled folder containing final demultiplexed sample files) and its barcodes/ folder should be listed in the folders and barcodes arrays below. Ignore this if you are only working with data for one project.
+If so: at this point you need to create a new folder in your project's home directory (e.g. **combined_data/ready**), and copy over the sample files from each **ready/** folder into that. In the example below, we have two independent projects that were demultiplexed. Each project path (**ready/** or **ready/subsampled** folder containing final demultiplexed sample files) and its **barcodes/** folder should be listed in the folders and barcodes arrays below. Ignore this if you are only working with data for one project.
 
 ```
 # Define your HOME_DIR (the base directory of your project)
@@ -206,4 +208,15 @@ echo "Combination complete. Output in: $HOME_DIR/combined_data"
 
 ### 🔵 2_align_and_stacks_denovo.job FOR DENOVO assembly (no reference genome)
 
+This script assembles the demultiplexed samples using Stacks's denovo_map.pl and populations workflows. To run:
 
+SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)
+BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
+
+This script creates an output folder called **stacksoutput_denovo/** and **stacksoutput_denovo/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
+
+Check the script to modify Stacks parameters.
+
+```
+qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes" 2_align_and_stacks_denovo.job
+```
