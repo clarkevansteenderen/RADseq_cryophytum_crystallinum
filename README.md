@@ -14,7 +14,7 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 The folder structure of each individual project should resemble this, adapted to the number of plates present:
 
 ```plaintext
-your_repository/
+RADseq_project/
 └── job_files/
       	├── 0_index_refgenome.job	
       	├── 1_subsample.job
@@ -22,7 +22,7 @@ your_repository/
       	├── 3_demultiplex.job
       	├── 4_align_and_stacks_denovo.job	
       	├── 4_align_and_stacks_refgenome.job		
-└── your_RADseq_data_folder/  
+└── data/  
     ├── plate_1/  
     │   ├── filenameA_R1_001.fastq.gz  
     │   └── filenameA_R2_001.fastq.gz  
@@ -136,7 +136,7 @@ qsub -v REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/da
 
 This runs a quality check on the data received from the sequencer:
 
-BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **your_RADseq_data_folder/**
+BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**
 NUM_PLATES = the number of plates you have
 
 ```
@@ -146,7 +146,7 @@ qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean
 ### 🔵 1_demultiplex.job
 
 This step takes in the internal index information for each sample on each plate (the files you created that are now in **barcodes/**), and searches through the sequence data to find all the fragments that belong to each unique sample. It creates an output folder called **stacksoutput/**, and a folder for each plate. E.g. **stacksoutput/plate_1** and **stacksoutput/plate_2**. Each plate folder will contain a folder (.fq.gz) per sample. Once it has completed demultiplexing, the script creates a new folder called **combined_plates/**, into which it puts all samples from all plates. It then checks for sample folders that are abnormally small, and moves those into a new folder called **removed_zipped/**. The remaining good samples are put into a folder called **ready/**. The barcodes folder is updated to include these ready samples, as the removed ones should no longer be in the sample list. This sample list is saved as **barcodes/bothplates_pops.txt**.		
-The file structure should resemble: **your_RADseq_data_folder/stacksoutput/combined_plates/ready** and **your_RADseq_data_folder/barcodes/bothplates_pops.txt**
+The file structure should resemble: **data/stacksoutput/combined_plates/ready** and **data/barcodes/bothplates_pops.txt**
 
 ### 🔵 subsample.job
 
@@ -160,3 +160,50 @@ This uses the reformat.sh function in the bbmap library, where N fragments are r
 ```
 qsub INPUT_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Admera/stacksoutput/combined_plates/ready",SAMPLERATE=0.1 1_subsample.job
 ```
+
+### ⚠️ Check ⚠️: Are you working with data from more than one project (independent sequence results received from the same provider or different providers at different times)?	
+If so: at this point you need to create a new folder in your project's home directory (e.g. **combined_data/ready**), and copy over the sample files from each **ready/** folder into that. In the example below, we have two independent projects that were demultiplexed. Each project path (ready/ or ready/subsampled folder containing final demultiplexed sample files) and its barcodes/ folder should be listed in the folders and barcodes arrays below. Ignore this if you are only working with data for one project.
+
+```
+# Define your HOME_DIR (the base directory of your project)
+HOME_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum"
+
+# Create output directories for the new folder that will contain all samples across projects, and the associated barcodes folder
+mkdir -p "$HOME_DIR/combined_data/ready"
+mkdir -p "$HOME_DIR/combined_data/barcodes"
+
+# Define arrays of folder and barcode paths (same order). Here, we have two separate project folders with demultiplexed samples in each
+# List all the project folders here, pointing to the folder containing the samples that are ready to be processed further
+folders=(
+  "$HOME_DIR/data/Admera/stacksoutput/combined_plates/ready/subsampled"
+  "$HOME_DIR/data/Dean/IcePlant.RawData/stacksoutput/combined_plates/ready"
+)
+
+# in the same order, list the associated barcodes folders pointing to the bothplates_pops.txt files -> these contain all the sample info (sample id and pop assignment) for that project
+barcodes=(
+  "$HOME_DIR/data/Admera/barcodes/bothplates_pops.txt"
+  "$HOME_DIR/data/Dean/IcePlant.RawData/barcodes/bothplates_pops.txt"
+)
+
+# Loop through folders and copy files over to the new combined_data folder
+for folder in "${folders[@]}"; do
+  echo "Copying files from: $folder"
+  cp "$folder"/* "$HOME_DIR/combined_data/ready/"
+done
+
+# Loop through barcode files and concatenate
+output_barcode_file="$HOME_DIR/combined_data/barcodes/bothplates_pops.txt"
+> "$output_barcode_file"  # Empty or create new
+
+for barcode_file in "${barcodes[@]}"; do
+  echo "Appending barcode file: $barcode_file"
+  cat "$barcode_file" >> "$output_barcode_file"
+done
+
+echo "Combination complete. Output in: $HOME_DIR/combined_data"
+
+```
+
+### 🔵 2_align_and_stacks_denovo.job FOR DENOVO assembly (no reference genome)
+
+
