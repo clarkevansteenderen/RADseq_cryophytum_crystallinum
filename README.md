@@ -153,7 +153,7 @@ qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean
 
 This step takes in the internal index information for each sample on each plate (the files you created that are now in **barcodes/**), and searches through the sequence data to find all the fragments that belong to each unique sample. It creates an output folder called **stacksoutput/**, and a folder for each plate. E.g. **stacksoutput/plate_1** and **stacksoutput/plate_2**. Each plate folder will contain a folder (.fq.gz) per sample. Once it has completed demultiplexing, the script creates a new folder called **combined_plates/**, into which it puts all samples from all plates. It then checks for sample folders that are abnormally small, and moves those into a new folder called **removed_zipped/**. The remaining good samples are put into a folder called **ready/**. The barcodes folder is updated to include these ready samples, as the removed ones should no longer be in the sample list. This sample list is saved as **barcodes/bothplates_pops.txt**.		
 The file structure should resemble: **data/stacksoutput/combined_plates/ready** and **data/barcodes/bothplates_pops.txt**		
-The demultiplexed samples in the **ready/** folder will be paired end reads, denoted by **.1** and **.2*** after each sample name. For example, samples CYP1 and DWSA1 would appear as:		
+The demultiplexed samples in the **ready/** folder will be paired end reads, denoted by **.1** and **.2** after each sample name. For example, samples CYP1 and DWSA1 would appear as:		
 
 ```
 CYP1.1.fq.gz				
