@@ -172,7 +172,7 @@ Script parameters:
 To run the script:
 
 ```
-qsub -v NUM_PLATES=2, BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean_all_spp/IcePlant.RawData" 3_demultiplex.job
+qsub -v NUM_PLATES=2, BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean_all_spp/IcePlant.RawData" 1_demultiplex.job
 ```
 
 ### 🔵 subsample.job
@@ -187,7 +187,7 @@ Script parameters:
 To run the script:
 
 ```
-qsub INPUT_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Admera/stacksoutput/combined_plates/ready",SAMPLERATE=0.1 1_subsample.job
+qsub INPUT_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Admera/stacksoutput/combined_plates/ready",SAMPLERATE=0.1 subsample.job
 ```
 
 ### ⚠️ Check ⚠️: Are you working with data from more than one project (independent sequence results received from the same provider or different providers at different times)?	
