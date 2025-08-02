@@ -167,12 +167,16 @@ Tweak the script to change the Stacks parameters (e.g. enzymes).
 
 ### 🔵 subsample.job
 
-If your demultiplexed sample files are very large (500MB - 1GB), consider subsampling them (selecting only a fraction of the fragments) before continuing with Stacks. To subsample, run this job script:
+If your demultiplexed sample files are very large (500MB - 1GB), consider subsampling them (selecting only a fraction of the fragments) before continuing with Stacks. This uses the reformat.sh function in the bbmap library, where N fragments are randomly selected, while keeping the correct Read1 and Read2 pairs.
 
+Script parameters: 
+
+```
 INPUT_DIR = the path to your ready samples that have been demultiplexed				
-SAMPLERATE = the proportion of fragments to keep		
+SAMPLERATE = the proportion of fragments to keep
+```	
 
-This uses the reformat.sh function in the bbmap library, where N fragments are randomly selected, while keeping the correct Read1 and Read2 pairs.
+To run the script:
 
 ```
 qsub INPUT_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Admera/stacksoutput/combined_plates/ready",SAMPLERATE=0.1 1_subsample.job
@@ -223,21 +227,19 @@ echo "Combination complete. Output in: $HOME_DIR/combined_data"
 
 ### 🔵 2_align_and_stacks_denovo.job FOR DENOVO assembly (no reference genome)
 
-This script assembles the demultiplexed paired-end samples using Stacks's **denovo_map.pl** and **populations** workflows. To run:
-
-```
-SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)			
-BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
-```		
-
-This script creates an output folder called **stacksoutput_denovo/** and **stacksoutput_denovo/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
+This script assembles the demultiplexed paired-end samples using Stacks's **denovo_map.pl** and **populations** workflows. 
+It creates an output folder called **stacksoutput_denovo/** and **stacksoutput_denovo/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
 
 Check the script to modify Stacks parameters.
+
+Script parameters:
 
 ```
 SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
 BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
 ```	
+
+To run the script:
 
 ```
 qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes" 2_align_and_stacks_denovo.job
@@ -245,8 +247,9 @@ qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/co
 
 ### 🔵 2_align_and_stacks_refgenome.job FOR ASSEMBLY USING A REFERENCE GENOME
 
-This script differs from the denovo approach in that it aligns sample reads to a reference genome, sorts them, and then assembles the reads using Stacks' **ref_map.pl** function.
-To run:
+This script differs from the denovo approach in that it aligns sample reads to a reference genome, sorts them, and then assembles the reads using Stacks' **ref_map.pl** function. This script creates an output folder called **refgenome_alignments/** and **refgenome_alignments/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
+
+Script parameters:
 
 ```
 SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
@@ -254,7 +257,7 @@ BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.tx
 REFERENCE_INDEX = the path to the indexed reference genome
 ```	
 
-This script creates an output folder called **refgenome_alignments/** and **refgenome_alignments/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
+To run the script:
 
 ```
 qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes",REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1/reference_index" 2_align_and_stacks_refgenome.job
