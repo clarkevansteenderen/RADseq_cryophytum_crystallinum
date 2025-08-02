@@ -164,6 +164,17 @@ DWSA1.2.fq.gz
 
 Tweak the script to change the Stacks parameters (e.g. enzymes).
 
+Script parameters:
+
+* BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**		
+* NUM_PLATES = the number of plates you have
+
+To run the script:
+
+```
+qsub -v NUM_PLATES=2, BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean_all_spp/IcePlant.RawData" 3_demultiplex.job
+```
+
 ### 🔵 subsample.job
 
 If your demultiplexed sample files are very large (500MB - 1GB), consider subsampling them (selecting only a fraction of the fragments) before continuing with Stacks. This uses the reformat.sh function in the bbmap library, where N fragments are randomly selected, while keeping the correct Read1 and Read2 pairs.
