@@ -9,6 +9,19 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 
 *Image credit: Centre for Biological Control (CBC)*
 
+# Table of Contents
+- [PIPELINE](#pipeline)
+- [SETUP](#setup)
+- [RUN LINUX JOB SCRIPTS](#run-linux-job-scripts)
+
+## PIPELINE
+
+**DENOVO:**  
+fastqc.job ➡️ 1_demultiplex.job ➡️ subsample.job ➡️ 2_align_and_stacks_denovo.job  
+
+**REFERENCE GENOME:**  
+index_reference_genome.job ➡️ fastqc.job ➡️ 1_demultiplex.job ➡️ subsample.job ➡️ 2_align_and_stacks_refgenome.job
+
 ## SETUP
 
 The folder structure of each individual project should resemble this, adapted to the number of plates present:
@@ -109,7 +122,7 @@ write.table(plate_2_indexes,
 
 ```
 
-Now create a full population info file for samples across all plates:
+* Now create a full population info file for samples across all plates:
 
 ```{r}
 sample_sheet = read.csv("all_plates.csv")
@@ -144,6 +157,8 @@ This runs a quality check on the data received from the sequencer:
 
 * BASE_DIR = the directory housing your data, containing a separate folder per plate. In the directory template example here -> **data/**		
 * NUM_PLATES = the number of plates you have
+
+To run the script:
 
 ```
 qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean/IcePlant.RawData",NUM_PLATES=2 fastqc.job
