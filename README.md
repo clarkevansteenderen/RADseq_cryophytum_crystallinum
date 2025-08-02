@@ -154,10 +154,10 @@ This step takes in the internal index information for each sample on each plate 
 The file structure should resemble: **data/stacksoutput/combined_plates/ready** and **data/barcodes/bothplates_pops.txt**		
 The demultiplexed samples in the **ready/** folder will be paired end reads, denoted by **.1** and **.2*** after each sample name. For example, samples CYP1 and DWSA1 would appear as:		
 
-CYP1.1.fq.gz	
-CYP1.2.fq.gz	
-DWSA1.1.fq.gz	
-DWSA1.2.fq.gz	
+CYP1.1.fq.gz		
+CYP1.2.fq.gz		
+DWSA1.1.fq.gz		
+DWSA1.2.fq.gz		
 
 Tweak the script to change the Stacks parameters (e.g. enzymes).
 
