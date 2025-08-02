@@ -53,7 +53,10 @@ RADseq_project/
 On an HPC, create the necessary folders (example below for 2 plates):
 
 ```
-mkdir -p RADseq_project/data/plate_1 RADseq_project/data/plate_2 RADseq_project/data/barcodes RADseq_project/data/refgenome RADseq_project/jobfiles
+mkdir -p RADseq_project/data/plate_1
+mkdir -p RADseq_project/data/plate_2
+mkdir -p RADseq_project/data/barcodes
+mkdir -p RADseq_project/data/refgenome RADseq_project/jobfiles
 ```
 
 * Move the job files from this repo into the **jobfiles/** folder
