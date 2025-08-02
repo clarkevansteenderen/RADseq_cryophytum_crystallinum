@@ -83,7 +83,7 @@ For example, **samples_plate_1.csv**:
 | A4   | Mexico       | MX01.2    | 27.49364 | -114.149 |
 | D4   | Mexico       | MX01.3    | 27.45517 | -114.136 |
 
-* If there is more than one plate, create another single file with all sample info combined -> e.g. **all_plates.csv**
+* If there is more than one plate (as in this example), create another single file with all sample info combined -> e.g. **all_plates.csv**
 
 | well | origin       | sample_id | lat      | lon      |
 |------|--------------|-----------|----------|----------|
