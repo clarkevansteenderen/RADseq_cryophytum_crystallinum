@@ -97,7 +97,19 @@ For example, **samples_plate_1.csv**:
 | A4   | Mexico       | MX01.2    | 27.49364 | -114.149 |
 | D4   | Mexico       | MX01.3    | 27.45517 | -114.136 |
 
-* Create an internal index file for each plate, and a single population info file for all samples. This script uses the internal index combinations applied during the laboratory steps, and assigns the correct combination to each sample based on its well. 
+* Create an internal index file for each plate, and a single population info file for all samples. This script uses the internal index combinations applied during the laboratory steps, and assigns the correct combination to each sample based on its well. Here, the script is assuming the ClaI and EcoRI iTru i5 and iTru i7 internal indexes from [Bayona-Vasquez et al., 2019](https://pmc.ncbi.nlm.nih.gov/articles/PMC6791345/). If other indexes were used for your study, edit these in the script to suit your setup. I.e. this section of the ``create_internal_indexes()`` function:
+
+```{r}
+# Rows A -> H on a 96-well plate
+i5_index = rep(c(
+"CCGAATAT", "TTAGGCAAT", "AACTCGTCAT", "GGTCTACGTAT", "GATACCAT", "AGCGTTGAT", "CTGCAACTAT", "TCATGGTCAAT"
+), times = 12),
+# Columns 1 -> 12 on a 96-well plate
+i7_index = rep(c(
+"CTAACGT", "TCGGTACT", "GATCGTTGT", "AGCTACACTT", "ACGCATT", "GTATGCAT", "CACATGTCT", "TGTGCACGAT", 
+"GCATCAT", "ATGCTGTT", "CATGACCTT", "TGCAGTGAGT"
+), each = 8)
+```
 
 Use the functions in the R script in the **generate_barcodes/** folder:
 
@@ -127,6 +139,17 @@ write.table(plate_2_indexes,
 
 ```
 
+**internal_indexes_plate_1.txt** should have three columns (no column header or row numbers/names): i5 index, i7 index, and sample name. E.g:
+
+```
+AACTCGTCAT	TCGGTACT	DWSA1
+GGTCTACGTAT	GATCGTTGT	DWSA3
+CTGCAACTAT	GTATGCAT	DWSA4
+GATACCAT	GCATCAT		PNSA1
+GGTCTACGTAT	AGCTACACTT	PNSA2
+CCGAATAT	GTATGCAT	PNSA4
+```
+
 * Now create a full population info file for samples across all plates:
 
 ```{r}
@@ -136,6 +159,17 @@ pops = create_pop_file(sample_sheet = sample_sheet)
 # save as a txt file
 write.table(pops, file = "sample_info/pops_all.txt", sep = "\t",             
             row.names = FALSE, col.names = FALSE, quote = FALSE, eol = "\n")
+```
+
+The **pops_all.txt** file should resemble:
+
+```
+LBSA1	Langebaan
+LBSA2	Langebaan
+LBSA3	Langebaan
+BBSA1	Bloubergstrand
+BBSA2	Bloubergstrand
+BBSA3	Bloubergstrand
 ```
 
 * Move the internal_indexes_plate_n.txt and pops_all.txt files into the **barcodes/** folder
