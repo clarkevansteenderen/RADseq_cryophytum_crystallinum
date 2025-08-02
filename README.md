@@ -97,7 +97,9 @@ For example, **samples_plate_1.csv**:
 | A4   | Mexico       | MX01.2    | 27.49364 | -114.149 |
 | D4   | Mexico       | MX01.3    | 27.45517 | -114.136 |
 
-* Create an internal index file for each plate, and a single population info file for all samples. Use the functions in the R script in the **generate_barcodes/** folder:
+* Create an internal index file for each plate, and a single population info file for all samples. This script uses the internal index combinations applied during the laboratory steps, and assigns the correct combination to each sample based on its well. 
+
+Use the functions in the R script in the **generate_barcodes/** folder:
 
 ```{r}
 # source the functions
