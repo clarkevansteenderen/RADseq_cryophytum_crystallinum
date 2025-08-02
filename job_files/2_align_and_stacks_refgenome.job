@@ -11,14 +11,14 @@
 ############################################################################################
 # Submit this script as a job using:
 
-# qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes",REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1/reference_index" 4_align_and_stacks_refgenome.job
+# qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes",REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1/reference_index" 2_align_and_stacks_refgenome.job
 
 ############################################################################################
 
 #PBS -l select=1:ncpus=12
 #PBS -P CBBI1682
 #PBS -q serial
-#PBS -l walltime=48:00:00
+#PBS -l walltime=52:00:00
 #PBS -o /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/refgen_align_stdout.txt
 #PBS -e /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/refgen_align_stderr.txt
 #PBS -N stacks_refgenome
@@ -70,11 +70,6 @@ cd "$ALIGNED_DIR"
 # get a list of all the sample names (i.e. bam files)
 find -type f -name '*.bam' | xargs -n 1 basename | sed 's/\.bam$//' | sort -u > samplenames.txt
 
-# write out the alignment rate success per sample 
-grep "overall alignment rate" refgen_align_stderr.txt | awk '{gsub("%", "", $1); print $1}' > alignment_rates.txt
-
-paste samplenames.txt alignment_rates.txt > refgenome_alignment_stats.txt
-
 ############################################################################################################################
 # SAMTOOLS: SORT THE REF GENOME ALIGNMENTS
 ############################################################################################################################
@@ -114,11 +109,28 @@ done
 
 # create a folder that contains the BAM files only
 
+echo "Creating a folder for BAM files..."
+
 cd "$ALIGNED_SORTED_DIR"
 
 mkdir -p bam_files
 
 mv *.bam ./bam_files
+
+echo "Updating sample list in barcodes/..."
+
+cd "$ALIGNED_SORTED_DIR/bam_files"
+# create a list of sample names from the sorted bam files
+find -type f -name '*.bam' | xargs -n 1 basename | sed 's/\.bam$//' | sort -u > samplenames.txt
+
+# update your barcodes/bothplates_pops.txt file to the sample names present in bam_files
+# this is NB, as the sorting process may drop one or more samples, and then your bam files are not exactly the same as the samples listed in your pop file
+# Sort input files
+sort -k1,1 "$BARCODES_DIR/bothplates_pops.txt" -o "$BARCODES_DIR/bothplates_pops.txt"
+sort -k1,1 "$ALIGNED_SORTED_DIR/bam_files/samplenames.txt" -o "$ALIGNED_SORTED_DIR/bam_files/samplenames.txt"
+
+# Create a new filtered output file
+join -t $'\t' "$BARCODES_DIR/bothplates_pops.txt" "$ALIGNED_SORTED_DIR/bam_files/samplenames.txt" > "$BARCODES_DIR/bothplates_pops_refgenome.txt"
 
 ############################################################################################################################
 # STACKS REFERENCE GENOME ref_map.pl -> RUN STACKS ANALYSIS ON ALIGNED FRAGMENTS
@@ -131,7 +143,7 @@ cd "$ALIGNED_SORTED_DIR"
 # make the output folder to get ready for running the next step: ref_map.pl
 mkdir -p "$ALIGNED_SORTED_DIR/stacksoutput_refgenome"
 
-ref_map.pl -o "$ALIGNED_SORTED_DIR/stacksoutput_refgenome" --popmap "$BARCODES_DIR/bothplates_pops.txt" --samples "$ALIGNED_SORTED_DIR/bam_files" -X "populations:--fstats"
+ref_map.pl -o "$ALIGNED_SORTED_DIR/stacksoutput_refgenome" --popmap "$BARCODES_DIR/bothplates_pops_refgenome.txt" --samples "$ALIGNED_SORTED_DIR/bam_files"
 
 ############################################################################################################################
 # POPULATIONS
@@ -143,17 +155,16 @@ mkdir -p "$ALIGNED_SORTED_DIR/stacksoutput_refgenome/populations"
 
 # run populations
 # this produces the snps.vcf file that you need
-# populations -P ./stacksoutput_refgenome/ -O ./stacksoutput_refgenome/populations --popmap ./barcodes/bothplates_pops.txt -r 0.75 -f p_value -t 12 --hwe --fstats --phylip-var --plink --phylip --vcf --vcf-all
 
 populations \
   -P "$ALIGNED_SORTED_DIR/stacksoutput_refgenome/" \
   -O "$ALIGNED_SORTED_DIR/stacksoutput_refgenome/populations" \
-  --popmap "$BARCODES_DIR/bothplates_pops.txt" \
+  --popmap "$BARCODES_DIR/bothplates_pops_refgenome.txt" \
   -r 0.75 \
   -f p_value \
   -t 12 \
   --hwe \
-  --fstats \
+  # --fstats \
   --phylip-var \
   --plink \
   --phylip \

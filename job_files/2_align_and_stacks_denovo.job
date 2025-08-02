@@ -18,7 +18,7 @@
 #PBS -l select=1:ncpus=12
 #PBS -P CBBI1682
 #PBS -q serial
-#PBS -l walltime=48:00:00
+#PBS -l walltime=52:00:00
 #PBS -o /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/denovo_stdout.txt
 #PBS -e /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/denovo_stderr.txt
 #PBS -N stacks_denovo
@@ -50,14 +50,13 @@ cd "$SAMPLE_DIR"
 # STACKS: assemble reads 
 ##############################################################
 
-SAMPLE_FOLDER="$SAMPLE_DIR"
 POPS_FILE="$BARCODES_DIR/bothplates_pops.txt"
 
 mkdir -p "$SAMPLE_DIR/stacksoutput_denovo"
 
 OUTPUT_FOLDER="$SAMPLE_DIR/stacksoutput_denovo"
 
-denovo_map.pl -m 5 -n 3 -M 2 -T 10 -o "$OUTPUT_FOLDER" --popmap "$POPS_FILE" --samples "$SAMPLE_FOLDER" --rm-pcr-duplicates --paired --min-samples-per-pop 0.75 --min-populations 2 -X "populations:--fstats"
+denovo_map.pl -m 5 -n 3 -M 2 -T 10 -o "$OUTPUT_FOLDER" --popmap "$POPS_FILE" --samples "$SAMPLE_DIR" --rm-pcr-duplicates --paired --min-samples-per-pop 0.75 --min-populations 2
 
 ##############################################################
 # STACKS: populations
@@ -65,4 +64,17 @@ denovo_map.pl -m 5 -n 3 -M 2 -T 10 -o "$OUTPUT_FOLDER" --popmap "$POPS_FILE" --s
 
 mkdir -p "$SAMPLE_DIR/stacksoutput_denovo/populations"
 
-populations -P "$SAMPLE_DIR/stacksoutput_denovo" -O "$SAMPLE_DIR/stacksoutput_denovo/populations" --popmap "$SAMPLE_FOLDER" -r 0.75 -f p_value -t 12 --hwe --fstats --genepop --plink --phylip --vcf --vcf-all
+populations \
+-P "$SAMPLE_DIR/stacksoutput_denovo" \
+-O "$OUTPUT_FOLDER/populations" \
+--popmap "$POPS_FILE" \
+-r 0.75 \
+-f p_value \
+-t 12 \
+--hwe \
+# --fstats \
+--genepop \
+--plink \
+--phylip \
+--vcf \
+--vcf-all

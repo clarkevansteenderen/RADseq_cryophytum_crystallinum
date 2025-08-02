@@ -18,7 +18,7 @@
 ############################################################################################
 # Submit this script as a job using:
 
-# qsub -v NUM_PLATES=2, BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean_all_spp/IcePlant.RawData" 3_demultiplex.job
+# qsub -v NUM_PLATES=2, BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean_all_spp/IcePlant.RawData" 1_demultiplex.job
 
 # BASE_DIR should have the barcodes/ plate_1/ plate_2 etc. folders
 
@@ -27,7 +27,7 @@
 #PBS -l select=1:ncpus=24:mpiprocs=24
 #PBS -P CBBI1682
 #PBS -q serial
-#PBS -l walltime=24:00:00
+#PBS -l walltime=36:00:00
 #PBS -o /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean_all_spp/IcePlant.RawData/stacksoutput/demux_stdout.txt
 #PBS -e /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean_all_spp/IcePlant.RawData/stacksoutput/demux_stderr.txt
 #PBS -N stacks_demux
