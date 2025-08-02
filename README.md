@@ -141,8 +141,10 @@ qsub -v REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/da
 
 This runs a quality check on the data received from the sequencer:
 
+```
 BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**		
 NUM_PLATES = the number of plates you have
+```
 
 ```
 qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean/IcePlant.RawData",NUM_PLATES=2 fastqc.job
@@ -154,10 +156,12 @@ This step takes in the internal index information for each sample on each plate 
 The file structure should resemble: **data/stacksoutput/combined_plates/ready** and **data/barcodes/bothplates_pops.txt**		
 The demultiplexed samples in the **ready/** folder will be paired end reads, denoted by **.1** and **.2*** after each sample name. For example, samples CYP1 and DWSA1 would appear as:		
 
-CYP1.1.fq.gz		
-CYP1.2.fq.gz		
-DWSA1.1.fq.gz		
-DWSA1.2.fq.gz		
+```
+CYP1.1.fq.gz				
+CYP1.2.fq.gz					
+DWSA1.1.fq.gz				
+DWSA1.2.fq.gz
+```			
 
 Tweak the script to change the Stacks parameters (e.g. enzymes).
 
@@ -165,8 +169,8 @@ Tweak the script to change the Stacks parameters (e.g. enzymes).
 
 If your demultiplexed sample files are very large (500MB - 1GB), consider subsampling them (selecting only a fraction of the fragments) before continuing with Stacks. To subsample, run this job script:
 
-INPUT_DIR = the path to your ready samples that have been demultiplexed		
-SAMPLERATE = the proportion of fragments to keep
+INPUT_DIR = the path to your ready samples that have been demultiplexed				
+SAMPLERATE = the proportion of fragments to keep		
 
 This uses the reformat.sh function in the bbmap library, where N fragments are randomly selected, while keeping the correct Read1 and Read2 pairs.
 
@@ -221,15 +225,19 @@ echo "Combination complete. Output in: $HOME_DIR/combined_data"
 
 This script assembles the demultiplexed paired-end samples using Stacks's **denovo_map.pl** and **populations** workflows. To run:
 
-SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)	
-BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file		
+```
+SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)			
+BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
+```		
 
 This script creates an output folder called **stacksoutput_denovo/** and **stacksoutput_denovo/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
 
 Check the script to modify Stacks parameters.
 
-SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)		
+```
+SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
 BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
+```	
 
 ```
 qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes" 2_align_and_stacks_denovo.job
@@ -240,9 +248,11 @@ qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/co
 This script differs from the denovo approach in that it aligns sample reads to a reference genome, sorts them, and then assembles the reads using Stacks' **ref_map.pl** function.
 To run:
 
-SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)		
-BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file		
+```
+SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
+BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file				
 REFERENCE_INDEX = the path to the indexed reference genome
+```	
 
 This script creates an output folder called **refgenome_alignments/** and **refgenome_alignments/populations/** inside the SAMPLE_DIR. The **populations/** folder will contain a **populations.snps.vcf file** -> this is what you need for downstream SNP analyses.
 
