@@ -61,7 +61,7 @@ mkdir -p RADseq_project/data/refgenome RADseq_project/jobfiles
 
 * Move the job files from this repo into the **jobfiles/** folder
 * Move your data from the sequencing company (Read 1 and Read 2 files) into each corresponding plate folder
-* If a reference genome is available, download it from NCBI and move it to the **ref_genome/** folder
+* If a reference genome is available, download it from NCBI and move it to the **ref_genome/** folder (it should be a .fna file)
 * Create a sample sheet for the samples on each plate, with the columns below (well, origin, and sample_id are essential).
 
 For example, **samples_plate_1.csv**:
