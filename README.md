@@ -129,9 +129,10 @@ For each job, just modify the #PBS paramaters in the files to match your HPC pla
 ### 🔵 index_refgenome.job
 
 If you have a reference genome, run this script to index it (indexing makes it easier to work with further downstream). 
-Example job submission (change the REFERENCE_INDEX path accordingly to set the directory containing the reference genome):
 
-REFERENCE_INDEX = file path to the reference genome, which should contain a **.fna** file
+* REFERENCE_INDEX = file path to the reference genome, which should contain a **.fna** file
+
+To run the script:
 
 ```
 qsub -v REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1" 0_index_refgenome.job
@@ -141,10 +142,8 @@ qsub -v REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/da
 
 This runs a quality check on the data received from the sequencer:
 
-```
-BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**		
-NUM_PLATES = the number of plates you have
-```
+* BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**		
+* NUM_PLATES = the number of plates you have
 
 ```
 qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean/IcePlant.RawData",NUM_PLATES=2 fastqc.job
@@ -171,10 +170,8 @@ If your demultiplexed sample files are very large (500MB - 1GB), consider subsam
 
 Script parameters: 
 
-```
-INPUT_DIR = the path to your ready samples that have been demultiplexed				
-SAMPLERATE = the proportion of fragments to keep
-```	
+* INPUT_DIR = the path to your ready samples that have been demultiplexed				
+* SAMPLERATE = the proportion of fragments to keep	
 
 To run the script:
 
@@ -234,10 +231,8 @@ Check the script to modify Stacks parameters.
 
 Script parameters:
 
-```
-SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
-BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
-```	
+* SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
+* BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file
 
 To run the script:
 
@@ -251,11 +246,9 @@ This script differs from the denovo approach in that it aligns sample reads to a
 
 Script parameters:
 
-```
-SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
-BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file				
-REFERENCE_INDEX = the path to the indexed reference genome
-```	
+* SAMPLE_DIR = the path to the folder containing the demultiplexed samples that are ready to go (ready/ or ready/subsampled)					
+* BARCODES_DIR = the path to the barcodes folder containing the bothplates_pops.txt file				
+* REFERENCE_INDEX = the path to the indexed reference genome
 
 To run the script:
 
