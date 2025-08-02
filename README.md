@@ -142,7 +142,7 @@ qsub -v REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/da
 
 This runs a quality check on the data received from the sequencer:
 
-* BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**		
+* BASE_DIR = the directory housing your data, containing a separate folder per plate. In the directory template example here -> **data/**		
 * NUM_PLATES = the number of plates you have
 
 ```
@@ -166,7 +166,7 @@ Tweak the script to change the Stacks parameters (e.g. enzymes).
 
 Script parameters:
 
-* BASE_DIR = the directory housing your data, separated into plate files. In the directory template example here -> **data/**		
+* BASE_DIR = the directory housing your data, containing a separate folder per plate. In the directory template example here -> **data/**		
 * NUM_PLATES = the number of plates you have
 
 To run the script:
