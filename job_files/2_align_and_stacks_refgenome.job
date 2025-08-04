@@ -164,7 +164,7 @@ populations \
   -f p_value \
   -t 12 \
   --hwe \
-  # --fstats \
+  --fstats \
   --phylip-var \
   --plink \
   --phylip \

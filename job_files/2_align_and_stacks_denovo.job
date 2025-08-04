@@ -72,8 +72,8 @@ populations \
 -f p_value \
 -t 12 \
 --hwe \
-# --fstats \
---genepop \
+--fstats \
+--phylip-var \
 --plink \
 --phylip \
 --vcf \
