@@ -1,0 +1,59 @@
+#!/bin/bash
+
+############################################################################################
+# Submit this script as a job using:
+
+# qsub -v BASE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean/IcePlant.RawData",NUM_PLATES=2 fastqc.job
+
+############################################################################################
+
+#PBS -l select=2:ncpus=24:mpiprocs=24:mem=124gb
+#PBS -P CBBI1682
+#PBS -q normal
+#PBS -l walltime=4:30:00
+#PBS -o /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean/IcePlant.RawData/fastqc_stdout.txt
+#PBS -e /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/Dean/IcePlant.RawData/fastqc_stderr.txt
+#PBS -N fastqc
+#PBS -M vsteenderen@gmail.com
+#PBS -m abe
+
+##############################################################
+
+#############################################################################################
+# fastqc did not work on the first round of fastq.gz files
+# use the unzip.job script to unzip and then rezip them before running fastqc 
+#############################################################################################
+
+module add chpc/BIOMODULES
+module add fastqc
+
+# Check if NUM_PLATES is set
+if [ -z "$NUM_PLATES" ]; then
+    echo "ERROR: NUM_PLATES variable is not set. Please provide it with '-v NUM_PLATES=<n>' when submitting the job."
+    exit 1  # Exit with an error code
+fi
+
+NUM_PLATES=$NUM_PLATES
+
+echo "Running FastQC for $NUM_PLATES plates..."
+
+BASE_DIR=$BASE_DIR
+
+# Loop over the plates
+for i in $(seq 1 "$NUM_PLATES"); do
+    PLATE_DIR="$BASE_DIR/plate_$i"
+
+    # Check if the directory exists before processing
+    if [ -d "$PLATE_DIR" ]; then
+        echo "Processing $PLATE_DIR..."
+        cd "$PLATE_DIR" || { echo "Error: Could not change to $PLATE_DIR"; exit 1; }
+		
+		# try fastqc on the zipped files
+        fastqc -t 6 -o "$PLATE_DIR" *.fastq.gz
+		
+		# try fastqc on the unzipped files
+		#fastqc -t 6 -o "$PLATE_DIR" *.fastq
+    else
+        echo "Warning: Directory $PLATE_DIR does not exist. Skipping..."
+    fi
+done

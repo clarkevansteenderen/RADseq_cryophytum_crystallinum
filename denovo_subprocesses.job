@@ -1,0 +1,62 @@
+#!/bin/bash
+
+############################################################################################
+# RUN Stacks USING DENOVO APPROACH (NO REF GENOME)
+
+# Make sure that there is a barcodes/ folder in your HOME_DIR, that contains all sample names 
+# and pop assignments. This should automatically be there if you have only been working with
+# one project. But, if this is combined from different projects, then manually combine the 
+# bothplates_pops.txt files from each project into one big one
+
+############################################################################################
+# Submit this script as a job using:
+
+# qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes" denovo_subprocesses.job
+
+############################################################################################
+
+#PBS -l select=1:ncpus=12
+#PBS -P CBBI1682
+#PBS -q seriallong
+#PBS -l walltime=144:00:00
+#PBS -o /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/denovo_stdout.txt
+#PBS -e /mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/denovo_stderr.txt
+#PBS -N stacks_denovo
+#PBS -M vsteenderen@gmail.com
+#PBS -m abe
+
+##############################################################
+
+module add chpc/BIOMODULES
+module add stacks
+
+cd "$SAMPLE_DIR"
+
+POPS_FILE="$BARCODES_DIR/bothplates_pops.txt"
+
+OUTPUT_FOLDER="$SAMPLE_DIR/stacksoutput_denovo"
+
+sstacks -P "$OUTPUT_FOLDER" -M "$POPS_FILE"
+tsv2bam -P "$OUTPUT_FOLDER" -M "$POPS_FILE" -R "$SAMPLE_DIR"
+gstacks -P "$OUTPUT_FOLDER" -M "$POPS_FILE"
+
+##############################################################
+# STACKS: populations
+##############################################################
+
+mkdir -p "$SAMPLE_DIR/stacksoutput_denovo/populations"
+
+populations \
+-P "$SAMPLE_DIR/stacksoutput_denovo" \
+-O "$OUTPUT_FOLDER/populations" \
+--popmap "$POPS_FILE" \
+-r 0.75 \
+-f p_value \
+-t 12 \
+--hwe \
+# --fstats \
+--genepop \
+--plink \
+--phylip \
+--vcf \
+--vcf-all
