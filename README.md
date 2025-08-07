@@ -13,6 +13,7 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 - [PIPELINE](#pipeline)
 - [SETUP](#setup)
 - [RUN LINUX JOB SCRIPTS](#run-linux-job-scripts)
+- [DOWNSTREAM ANALYSIS (R)](#downstream analysis)
 
 ## PIPELINE
 
