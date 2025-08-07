@@ -16,10 +16,12 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 
 ## PIPELINE
 
-**DENOVO:**  
+Run these scripts, in this order, for a denovo or reference genome assembly:
+
+🟠 **DENOVO:**  
 fastqc.job ➡️ 1_demultiplex.job ➡️ subsample.job ➡️ 2_align_and_stacks_denovo.job  
 
-**REFERENCE GENOME:**  
+🟡 **REFERENCE GENOME:**  
 index_reference_genome.job ➡️ fastqc.job ➡️ 1_demultiplex.job ➡️ subsample.job ➡️ 2_align_and_stacks_refgenome.job
 
 ## SETUP
@@ -321,3 +323,38 @@ To run the script:
 qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes",REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1/reference_index" 2_align_and_stacks_refgenome.job
 ```
 
+## 🛠️ DOWNSTREAM ANALYSIS (R)
+
+The **populations.snps.vcf** file needs to be filtered using the ``SNPfiltR`` R library before any analyses can be run.
+
+The R scripts in the **downstream_analysis/** folder run through this pipeline. In summary:
+
+* Read in the **populations.snps.vcf** file, and filter as per the ``SNPfiltR`` instructions
+* Write out a filtered vcf SNP file, which should be substantially smaller than the original
+* Convert the filtered SNP file (e.g. **populations.snps.filtered.vcf**) into genind and genlight objects
+* Create an input file for fastSTRUCTURE using the ``dartR::gl2faststructure()`` function
+* Run PCAs and DAPCs
+* Get population statistics using packages such as ``hierfstat`` and ``poppr``
+* Run fastSTRUCTURE using the **.str** file created. To do this on Linux:
+
+```
+# create an interactive session
+qsub -I -P CBBI1682 -q serial -l select=1:ncpus=1:mpiprocs=1:nodetype=haswell_reg -l walltime=1:00:00
+
+module add chpc/BIOMODULES
+module add fastStructure
+
+cd yourproject_directory/faststructure
+
+# use a loop to iterate over K = 1 to K = 5
+# change file path accordingly
+# --input=faststructure_input 		is the name of the .str file
+# --output=faststructure 			is the prefix of the name of the output files
+for K in {1..5}; do structure.py -K $K --input=faststructure_input --output=faststructure --format=str --full; done
+
+# check which value of K is the best
+chooseK.py --input=fastStructure
+```
+
+* Plot the fastSTRUCTURE output using the custom function ``structure.plot()`` and ``hapmap.global()`` in the ``structure.plot.R`` script
+  
