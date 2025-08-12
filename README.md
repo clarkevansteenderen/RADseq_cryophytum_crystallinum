@@ -114,11 +114,11 @@ i7_index = rep(c(
 ), each = 8)
 ```
 
-Use the functions in the R script in the **generate_barcodes/** folder:
+Use the functions in the R script in the **functions/** folder:
 
 ```{r}
 # source the functions
-source("generate_barcodes/barcode_functions.R")
+source("functions/useful_functions.R")
 
 # read in sample info for plate 1
 plate_1 = read.csv("samples_plate_1.csv")
@@ -333,8 +333,94 @@ The R scripts in the **downstream_analysis/** folder run through this pipeline. 
 * Read in the **populations.snps.vcf** file, and filter as per the ``SNPfiltR`` instructions
 * Write out a filtered vcf SNP file, which should be substantially smaller than the original
 * Convert the filtered SNP file (e.g. **populations.snps.filtered.vcf**) into genind and genlight objects
-* Create an input file for fastSTRUCTURE using the ``dartR::gl2faststructure()`` function
-* Run PCAs and DAPCs
+* Create an updated population map file, with two columns: sample IDs and group assignment. The function ``create_sourcemods()`` in **functions/useful_functions.R** allows one to input your full sample sheet and the genlight object, and specify which column you want as a group. For example, if we want to create a pop map based on broad and country groupings, we could do this:
+
+```
+source("functions/useful_functions.R")
+
+# Read in the filtered VCF file
+cryo.snps = vcfR::read.vcfR("populations.snps.filtered.vcf")
+
+# Read in the Excel sheet with all sample info for the project
+sample.sheet = readxl::read_excel("radseq_sample_sheet.xlsx", sheet = 1) %>%
+  janitor::clean_names()
+
+# Convert the VCF to a genlight object
+cryo.snps_genlight = vcfR::vcfR2genlight(cryo.snps)
+# Check sample names in the genlight object
+cryo.snps_genlight@ind.names
+
+# Use the custom function to create pop map files (2-column dataframes)
+popmap.broad = create_sourcemods(
+    sample.sheet = sample.sheet, 	# data frame of sample info
+    id_col = sample_id,       		# name of column in sample.sheet with sample IDs
+    group_col = status,       		# name of column to use for grouping
+    gen.object = cryo.snps_genlight # genlight object
+  )
+
+popmap.country = create_sourcemods(
+  sample.sheet = sample.sheet,
+  id_col = sample_id,       		
+  group_col = country,    		
+  gen.object = cryo.snps_genlight
+)
+
+# broad grouping
+
+# create a copy of the SNP file
+broad_grouping.genlight = cryo.snps_genlight
+# assign the broad groups as population info
+broad_grouping.genlight@pop = as.factor(popmap.broad$status)
+
+# country grouping
+
+# create a copy of the SNP file
+country_grouping.genlight = cryo.snps_genlight
+# assign the country names as population info
+country_grouping.genlight@pop = as.factor(popmap.country$country)
+
+##############
+# Run a PCA
+##############
+
+broad_myCol = c("gold", "red", "forestgreen")
+
+broad.pca = adegenet::glPca(broad_grouping.genlight, nf = 10)
+
+# Extract PCA scores
+scores = as.data.frame(broad.pca$scores)  # PCA coordinates (individuals × axes)
+scores$group = pop(broad_grouping.genlight)
+
+pca.ggplot = ggplot(scores, aes(x = PC1, y = PC2, fill = group)) +
+  geom_point(alpha = 0.5, size = 4, shape = 21) +
+  labs(
+    title = "PCA of RADseq data",
+    x = paste0("PC1 (", round(broad.pca$eig[1] / sum(broad.pca$eig) * 100, 1), "%)"),
+    y = paste0("PC2 (", round(broad.pca$eig[2] / sum(broad.pca$eig) * 100, 1), "%)")
+  ) +
+  scale_fill_manual(values = c(
+    "introduced" = "gold",
+    "invasive" = "red",
+    "native" = "forestgreen"
+  )) + 
+  ggrepel::geom_text_repel(aes(label = rownames(scores)), 
+                           vjust = -1, size = 2, colour = "black") +
+  theme_classic() +
+  theme(legend.position = "none") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")
+
+pca.ggplot
+```
+
+* Create an input file for fastSTRUCTURE using the ``dartR::gl2faststructure()`` function. Example:
+
+```
+dartR::gl2faststructure(x = broad_grouping.genlight, outpath=getwd(),
+                outfile = "populations/faststructure_input.str")
+```
+  
+* Run PCAs and DAPCs using different grouping structures (PCA does not use apriori info, while DAPC does)
 * Get population statistics using packages such as ``hierfstat`` and ``poppr``
 * Run fastSTRUCTURE using the **.str** file created. To do this on Linux:
 
