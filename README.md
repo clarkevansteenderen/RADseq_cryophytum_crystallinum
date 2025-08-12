@@ -468,3 +468,28 @@ sra.datatable = create_sourcemods(
 write.csv(sra.datatable, file = "SRA_table.csv")
 ```
   
+## Submitting to the [Sequence Read Archive (SRA)](https://www.ncbi.nlm.nih.gov/sra)
+
+* After creating the biosample attributes table and the SRA metadata table, all the paired end reads need to be uploaded
+* Paired end reads are the **.fq.gz** files obtained after demultiplexing
+* E.g. sample USA10 will comprise USA10.1.fq.gz and USA10.2.fq.gz (read 1 and read 2 sequences)
+* After all the filtering steps, some of these samples will have been dropped. In order to check which reads should be removed prior to uploading, one can run some code like this in R:
+
+```
+# Directory containing your .fq.gz files
+fq_dir = "sra_files"
+
+# List all .fq files
+fq_files = list.files(fq_dir, pattern = "\\.fq(\\.gz)?$")
+
+# Remove .1.fq or .2.fq and get unique names
+sample_names = sort(unique(sub("\\.[12]\\.fq\\.gz$", "", fq_files)))
+
+# compare to the sample names in the sra_datatable to see which ones are missing
+
+missing_samples = sample_names[!sample_names %in% sra.datatable$sample_id]
+missing_samples
+```   
+
+
+
