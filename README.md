@@ -353,15 +353,15 @@ cryo.snps_genlight@ind.names
 # Use the custom function to create pop map files (2-column dataframes)
 popmap.broad = create_sourcemods(
     sample.sheet = sample.sheet, 	# data frame of sample info
-    id_col = sample_id,       		# name of column in sample.sheet with sample IDs
-    group_col = status,       		# name of column to use for grouping
+    id_col = "sample_id",       		# name of column in sample.sheet with sample IDs
+    group_col = "status",       		# name of column to use for grouping
     gen.object = cryo.snps_genlight # genlight object
   )
 
 popmap.country = create_sourcemods(
   sample.sheet = sample.sheet,
-  id_col = sample_id,       		
-  group_col = country,    		
+  id_col = "sample_id",       		
+  group_col = "country",    		
   gen.object = cryo.snps_genlight
 )
 
@@ -443,5 +443,28 @@ for K in {1..5}; do structure.py -K $K --input=faststructure_input --output=fast
 chooseK.py --input=fastStructure
 ```
 
-* Plot the fastSTRUCTURE output using the custom function ``structure.plot()`` and ``hapmap.global()`` in the ``structure.plot.R`` script
+* Plot the fastSTRUCTURE output using the custom functions ``structure.plot()`` and ``hapmap.global()`` in the **functions/** folder
+* Create a source modifiers file for a submission to the SRA database, using the same **create_sourcemods()** function, but with the addition of a few useful parameters. Providing the lat and lon columns (decimal format), creates a new column called **coordinates**, which outputs a single string in the format required by SRA (e.g. lat: -34.665278 and lon: 20.232222 becomes 34.67 S 20.23 E):
+
+```
+cryo.snps = vcfR::read.vcfR("populations_guerich_included/populations.snps.filtered.vcf")
+sample.sheet = readxl::read_excel("radseq_sample_sheet.xlsx", sheet = 1) %>%
+  janitor::clean_names()
+
+cryo.snps_genlight = vcfR::vcfR2genlight(cryo.snps)
+cryo.snps_genlight@ind.names
+
+head(sample.sheet)
+
+sra.datatable = create_sourcemods(
+  sample.sheet = sample.sheet,
+  id_col = "sample_id",
+  gen.object = cryo.snps_genlight,
+  keep_all = TRUE, 			# keep all the columns in the original sample sheet
+  lat_col = "lat",			# specify the latitude and longitude columns, which are in decimal format
+  lon_col = "long"
+)
+
+write.csv(sra.datatable, file = "SRA_table.csv")
+```
   
