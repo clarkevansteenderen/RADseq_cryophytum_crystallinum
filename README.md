@@ -1,8 +1,14 @@
 # RADseq *Cryophytum crystallinum*
 
+This GitHub repository accompanies the manuscript submitted for review to Molecular Ecology:		
+
+**Population genetics elucidates invasion pathways and informs biocontrol strategies for the Crystalline Ice Plant (*Cryophytum crystallinum*) in North America**
+
+van Steenderen, C.J.M., Sandenbergh, E., Brookes, D., Moran, P., Massimo, C., Hoyer, W., and Paterson, I.D.
+
 ## 🧬 **Linux and R scripts for a RADseq analysis pipeline**
 
-Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@ru.ac.za for queries
+Contact Clarke van Steenderen at vsteenderen@gmail.com for queries
 <br><br> 
 
 <img src="crystallinum.png" width="500">
@@ -13,7 +19,7 @@ Contact Clarke van Steenderen at vsteenderen@gmail.com or clarke.vansteenderen@r
 - [PIPELINE](#pipeline)
 - [SETUP](#setup)
 - [RUN LINUX JOB SCRIPTS](#run-linux-job-scripts)
-- [DOWNSTREAM ANALYSIS (R)](#downstream-analysis)
+- [DOWNSTREAM ANALYSIS](#downstream-analysis)
 
 ## PIPELINE
 
@@ -324,7 +330,7 @@ To run the script:
 qsub -v SAMPLE_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/ready",BARCODES_DIR="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/combined_data_all_spp/barcodes",REFERENCE_INDEX="/mnt/lustre/users/cvansteenderen/RADseq_crystallinum/data/ref_genome/ncbi_dataset/data/GCA_030267885.1/reference_index" 2_align_and_stacks_refgenome.job
 ```
 
-## 🛠️ DOWNSTREAM ANALYSIS (R)
+## DOWNSTREAM ANALYSIS
 
 The **populations.snps.vcf** file needs to be filtered using the ``SNPfiltR`` R library before any analyses can be run.
 
