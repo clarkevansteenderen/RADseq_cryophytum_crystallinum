@@ -1,6 +1,6 @@
 # RADseq *Cryophytum crystallinum*
 
-This GitHub repository accompanies the manuscript submitted for review to Molecular Ecology:		
+This GitHub repository accompanies the manuscript submitted for review to *Weed Science*:		
 
 **Population genetics elucidates invasion pathways and informs biocontrol strategies for the Crystalline Ice Plant (*Cryophytum crystallinum*) in North America**
 
